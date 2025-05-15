@@ -1,0 +1,1 @@
+from .widget import register_plugin 

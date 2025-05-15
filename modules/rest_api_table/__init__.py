@@ -1,0 +1,1 @@
+# REST API table widget module
