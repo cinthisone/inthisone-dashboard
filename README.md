@@ -1,6 +1,15 @@
 # Inthisone Dashboard
 
-A cross-platform desktop dashboard application with dockable widgets, built with Python and PySide6 (Qt 6).
+A cross-platform desktop dashboard application with dockable widgets, built with Python and PySide6 (Qt 6). Designed to provide real-time visualization and monitoring capabilities for quantitative trading systems and market analysis.
+
+## Motivation
+
+This dashboard is being developed to serve as a powerful visualization and monitoring tool for quantitative trading systems. It aims to:
+- Display real-time market data and trading signals
+- Visualize technical indicators and trading patterns
+- Monitor portfolio performance and risk metrics
+- Provide customizable layouts for different trading strategies
+- Enable quick decision-making through intuitive data presentation
 
 ## Features
 
@@ -15,6 +24,27 @@ A cross-platform desktop dashboard application with dockable widgets, built with
 - **Clock**: Displays the current time and date, updates every second
 - **Markdown Viewer**: Opens and renders Markdown files, refreshes on save
 - **REST API Table**: Fetches and displays JSON data from any REST API
+
+## Future Roadmap
+
+### Phase 1: Market Data Integration
+- Real-time stock market data feeds
+- Technical indicator visualization widgets
+- Price chart widgets with multiple timeframes
+- Volume and order flow analysis displays
+
+### Phase 2: Trading System Integration
+- Trading signal visualization
+- Position and order management interface
+- Risk metrics dashboard
+- Performance analytics widgets
+
+### Phase 3: Advanced Features
+- Backtesting results visualization
+- Strategy optimization metrics
+- Portfolio allocation views
+- Risk management controls
+- Alert system for trading signals
 
 ## Requirements
 
