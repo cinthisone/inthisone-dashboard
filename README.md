@@ -4,10 +4,10 @@ A cross-platform desktop dashboard application with dockable widgets, built with
 
 ## Motivation
 
-This dashboard is being developed to serve as a powerful visualization and monitoring tool for quantitative trading systems. It aims to:
-- Display real-time market data and trading signals
-- Visualize technical indicators and trading patterns
-- Monitor portfolio performance and risk metrics
+This dashboard is being developed to serve as a powerful visualization and monitoring tool for quantitative trading systems. While the core dashboard functionality is implemented, the quantitative trading features are planned for future development. The project aims to:
+- Display real-time market data and trading signals (planned)
+- Visualize technical indicators and trading patterns (planned)
+- Monitor portfolio performance and risk metrics (planned)
 - Provide customizable layouts for different trading strategies
 - Enable quick decision-making through intuitive data presentation
 
@@ -26,6 +26,8 @@ This dashboard is being developed to serve as a powerful visualization and monit
 - **REST API Table**: Fetches and displays JSON data from any REST API
 
 ## Future Roadmap
+
+The following features are planned but not yet implemented:
 
 ### Phase 1: Market Data Integration
 - Real-time stock market data feeds
