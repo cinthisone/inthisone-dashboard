@@ -11,6 +11,7 @@ from PySide6.QtGui import QDesktopServices, QFont, QColor, QPalette, QPixmap, QI
 import json
 import os
 from datetime import datetime
+import subprocess
 
 class AddItemDialog(QDialog):
     """Dialog for adding or editing list items"""
@@ -458,40 +459,9 @@ class CustomListWidget(QWidget):
                 url = item.data(Qt.UserRole)
                 print(f"URL data: {url}")  # Debug print
                 if url:
-                    print(f"Attempting to open URL: {url}")  # Debug print
-                    try:
-                        # Create a proper QUrl object
-                        qurl = QUrl(url)
-                        if not qurl.scheme():  # If no scheme (http://, https://, etc.)
-                            qurl = QUrl("http://" + url)  # Add http:// by default
-                        
-                        # Try using QDesktopServices first
-                        success = QDesktopServices.openUrl(qurl)
-                        
-                        # If that fails and we're on WSL, try using explorer.exe
-                        if not success and os.path.exists('/proc/version') and 'microsoft' in open('/proc/version').read().lower():
-                            import subprocess
-                            try:
-                                # Use explorer.exe to open the URL
-                                subprocess.run(['explorer.exe', qurl.toString()], check=True)
-                                success = True
-                            except subprocess.CalledProcessError as e:
-                                print(f"Error using explorer.exe: {e}")
-                                success = False
-                        
-                        if not success:
-                            QMessageBox.warning(
-                                self,
-                                "Error Opening Link",
-                                f"Could not open the URL: {url}"
-                            )
-                    except Exception as e:
-                        print(f"Error opening URL: {e}")
-                        QMessageBox.warning(
-                            self,
-                            "Error Opening Link",
-                            f"Could not open the URL: {url}\nError: {str(e)}"
-                        )
+                    # Clear the selection before opening the URL
+                    self.table.clearSelection()
+                    self._open_url(url)
 
     def handleDropEvent(self, event):
         """Handle drop events for row reordering"""
@@ -745,15 +715,16 @@ class CustomListWidget(QWidget):
             delete_action.triggered.connect(self.delete_item)
             
             # Check if we're on a link cell
-            if item.data(Qt.UserRole):  # Has URL data
+            url_data = item.data(Qt.UserRole)
+            if url_data:  # Has URL data
                 menu.addSeparator()
                 open_link_action = menu.addAction("Open Link")
                 open_link_action.triggered.connect(
-                    lambda: QDesktopServices.openUrl(QUrl(item.data(Qt.UserRole)))
+                    lambda: self._open_url(url_data)
                 )
             
             # Add color menus for the title column (first column)
-            if col == 0:  # Title column
+            if col == 0:
                 menu.addSeparator()
                 
                 # Background Color submenu
@@ -975,6 +946,42 @@ class CustomListWidget(QWidget):
         # Save and refresh
         self.save_items()
         self.refresh_table()
+
+    def _open_url(self, url):
+        """Open a URL in the browser, handling WSL if necessary"""
+        if url:
+            try:
+                # Create a proper QUrl object
+                qurl = QUrl(url)
+                if not qurl.scheme():  # If no scheme (http://, https://, etc.)
+                    qurl = QUrl("http://" + url)  # Add http:// by default
+                
+                # Check if we're on WSL first
+                if os.path.exists('/proc/version') and 'microsoft' in open('/proc/version').read().lower():
+                    try:
+                        # Use explorer.exe to open the URL
+                        subprocess.run(['explorer.exe', qurl.toString()], check=True)
+                        return  # Return early if successful
+                    except subprocess.CalledProcessError as e:
+                        print(f"Error using explorer.exe: {e}")
+                        # Fall through to try QDesktopServices
+                
+                # Try using QDesktopServices as fallback
+                success = QDesktopServices.openUrl(qurl)
+                
+                if not success:
+                    QMessageBox.warning(
+                        self,
+                        "Error Opening Link",
+                        f"Could not open the URL: {url}"
+                    )
+            except Exception as e:
+                print(f"Error opening URL: {e}")
+                QMessageBox.warning(
+                    self,
+                    "Error Opening Link",
+                    f"Could not open the URL: {url}\nError: {str(e)}"
+                )
 
 def register_plugin():
     """Register this widget with the plugin system"""

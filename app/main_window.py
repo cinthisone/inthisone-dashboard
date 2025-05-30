@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QToolBar, QStatusBar, QMessageBox, QApplication, QSizePolicy, QWidget, QVBoxLayout,
     QTabWidget, QInputDialog, QLineEdit
 )
-from PySide6.QtCore import Qt, QSize, QSettings, QByteArray
+from PySide6.QtCore import Qt, QSize, QSettings, QByteArray, QEvent
 from PySide6.QtGui import QAction, QIcon
 
 import os
@@ -19,11 +19,25 @@ class DashboardTab(QMainWindow):
     def __init__(self, title, parent=None):
         super().__init__(parent)
         self.title = title
+        
+        # Set proper window flags and attributes
+        self.setWindowFlags(Qt.Widget)  # Ensure it behaves as a widget in the tab
+        self.setAttribute(Qt.WA_DeleteOnClose)  # Clean up properly when closed
+        
+        # Enable all dock widget features
         self.setDockOptions(
             QMainWindow.DockOption.AnimatedDocks | 
             QMainWindow.DockOption.AllowNestedDocks | 
-            QMainWindow.DockOption.AllowTabbedDocks
+            QMainWindow.DockOption.AllowTabbedDocks |
+            QMainWindow.DockOption.VerticalTabs  # Enable vertical tab layout for nested docks
         )
+        
+        # Create a central widget to properly handle dock layout
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        
+        # Set size policy to expand properly
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
 class MainWindow(QMainWindow):
     def __init__(self, db_manager, ingest_manager):
@@ -36,6 +50,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Inthisone Dashboard")
         self.setMinimumSize(1280, 720)
         
+        # Enable window features
+        self.setWindowFlags(
+            Qt.Window |  # Regular window
+            Qt.WindowMinMaxButtonsHint |  # Enable minimize/maximize buttons
+            Qt.WindowSystemMenuHint |  # Enable system menu
+            Qt.WindowCloseButtonHint    # Enable close button
+        )
+        
         # Create central tab widget
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabsClosable(True)
@@ -44,7 +66,12 @@ class MainWindow(QMainWindow):
         # Enable tab renaming on double click
         self.tab_widget.tabBarDoubleClicked.connect(self._rename_tab)
         
-        self.setCentralWidget(self.tab_widget)
+        # Create a central widget to hold the tab widget
+        central_widget = QWidget()
+        central_layout = QVBoxLayout(central_widget)
+        central_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        central_layout.addWidget(self.tab_widget)
+        self.setCentralWidget(central_widget)
         
         # Initialize UI components
         self._init_ui()
@@ -58,6 +85,41 @@ class MainWindow(QMainWindow):
         
         # Load saved theme
         ThemeManager.load_saved_theme(QApplication.instance())
+        
+        # Force an update after initialization
+        self.update()
+        QApplication.processEvents()
+
+    def showEvent(self, event):
+        """Handle window show event"""
+        super().showEvent(event)
+        # Force a redraw when the window is shown
+        self.update()
+        for i in range(self.tab_widget.count()):
+            dashboard = self.tab_widget.widget(i)
+            if dashboard:
+                dashboard.update()
+                # Update all dock widgets
+                for dock in dashboard.findChildren(QDockWidget):
+                    dock.update()
+                    if dock.widget():
+                        dock.widget().update()
+        QApplication.processEvents()
+
+    def resizeEvent(self, event):
+        """Handle window resize event"""
+        super().resizeEvent(event)
+        # Update layout after resize
+        self.update()
+        QApplication.processEvents()
+
+    def changeEvent(self, event):
+        """Handle window state changes"""
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.WindowStateChange:
+            # Force update when window state changes (maximize, minimize, etc.)
+            self.update()
+            QApplication.processEvents()
     
     def _init_ui(self):
         # Create menu bar
