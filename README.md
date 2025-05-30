@@ -19,6 +19,17 @@ This dashboard is being developed to serve as a powerful visualization and monit
 - **Background Data Ingestion**: Process data from PDFs, websites, and APIs
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
+## Screenshots
+
+![Dashboard Overview](docs/images/screenshot.png)
+*Main dashboard interface showing multiple widgets including Clock, Custom Lists, and WYSIWYG Editor*
+
+![Widget Customization](docs/images/widget-customization.png)
+*Customizing widget layout and appearance*
+
+![Markdown Viewer](docs/images/markdown-viewer.png)
+*Markdown viewer widget in action*
+
 ## Sample Widgets
 
 - **Clock**: Displays the current time and date, updates every second
